@@ -1,29 +1,46 @@
 import { useState } from 'react';
+import { AuthVo } from '../model/AuthVo';
+import auth from '../api/axiosClient';
+import type { SessionVo } from '../model/SessionVo';
+import type { ApiResponse } from '../model/ApiResponse';
 
-type Credentials = { username: string; password: string };
-type LoginResult = { success: boolean; message?: string };
+
+
+export type LoginResult =
+  | { success: true; session: SessionVo }
+  | { success: false; message: string };
 
 export function useLogin() {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  async function login(creds: Credentials): Promise<LoginResult> {
+  async function login(vo: AuthVo): Promise<LoginResult> {
     setError('');
     setLoading(true);
+
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(creds),
-      });
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || '로그인 실패');
+      // POST /auth/login, 제네릭으로 받을 타입 지정
+      const resp = await auth.post<ApiResponse<SessionVo>>(
+        'login',
+        vo.toJSON()
+      );
+
+      const body = resp.data;
+
+      if (body.success && body.data) {
+
+        return { success: true, session: body.data };
+      } else {
+        // success=false인 경우
+        return { success: false, message: body.message };
       }
-      return { success: true };
-    } catch (e: any) {
-      setError(e.message);
-      return { success: false, message: e.message };
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        '로그인 실패';
+      setError(message);
+      return { success: false, message };
     } finally {
       setLoading(false);
     }
