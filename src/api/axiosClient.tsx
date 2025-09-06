@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const auth = axios.create({
   baseURL: '/auth',         // 공통 URL
-  timeout: 5000,           // 5초 타임아웃
+  timeout: 5000,            // 5초 타임아웃
   headers: {
     'Content-Type': 'application/json',
   },
