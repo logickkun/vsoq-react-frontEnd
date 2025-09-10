@@ -19,11 +19,8 @@ export function useLogin() {
     setLoading(true);
 
     try {
-      // POST /auth/login, 제네릭으로 받을 타입 지정
-      const resp = await auth.post<ApiResponse<SessionVo>>(
-        'login',
-        vo.toJSON()
-      );
+      // localhost:8080/bff/web/login
+      const resp = await auth.post<ApiResponse<SessionVo>>('login',  vo.toJSON());
 
       const body = resp.data;
 
