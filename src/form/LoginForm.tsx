@@ -1,28 +1,32 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useOidcLogin } from '../hooks/useOidcLogin';
 
-type LoginFormProps = {
-  username: string;
-  password: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  error?: string;
-  loading?: boolean;
+const LoginPage: React.FC = () => {
+  const [sp] = useSearchParams();
+  const ret = sp.get('ret') ?? '/';
+  const { startLogin, loading } = useOidcLogin();
+
+  return (
+    <main style={{ maxWidth: 360, margin: '3rem auto', padding: 16 }}>
+      <h2 style={{ textAlign: 'center' }}>로그인</h2>
+      <p style={{ opacity: 0.8, marginBottom: 12 }}>
+        인증서버로 이동해 로그인합니다.
+      </p>
+      <button
+        onClick={() => startLogin(ret)}
+        disabled={loading}
+        style={{ width: '100%', padding: 12 }}
+      >
+        {loading ? '이동 중…' : '로그인'}
+      </button>
+
+      <p style={{ marginTop: 12, fontSize: 12, opacity: 0.7 }}>
+        이 버튼은 <code>window.location.assign('/bff/web/login')</code>으로
+        전체 페이지 이동을 수행합니다.
+      </p>
+    </main>
+  );
 };
 
-const LoginForm = ({ username, password, onChange, onSubmit, error, loading }: LoginFormProps) => (
-  <form onSubmit={onSubmit} style={{ maxWidth: 320, margin: '2rem auto', padding: 16 }}>
-    <h2 style={{ textAlign: 'center' }}>로그인</h2>
-    <input name="username" value={username} onChange={onChange} placeholder="아이디" required
-      style={{ width: '100%', padding: 8, margin: '8px 0' }}
-    />
-    <input type="password" name="password" value={password} onChange={onChange} placeholder="비밀번호" required
-      style={{ width: '100%', padding: 8, margin: '8px 0' }}
-    />
-    {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
-    <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
-      {loading ? '로딩중…' : '로그인'}
-    </button>
-  </form>
-);
-
-export default LoginForm;
+export default LoginPage;
